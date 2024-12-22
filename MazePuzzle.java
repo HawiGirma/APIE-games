@@ -3,7 +3,6 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -47,8 +46,14 @@ public class MazePuzzle {
             quitButton = new JButton("Quit");
 
             // Button actions
-            resetButton.addActionListener(e -> resetGame());
-            nextLevelButton.addActionListener(e -> nextLevel());
+            resetButton.addActionListener(e -> {
+                resetGame();
+                requestFocusInWindow(); // Re-focus to the game panel after reset
+            });
+            nextLevelButton.addActionListener(e -> {
+                nextLevel();
+                requestFocusInWindow(); // Re-focus to the game panel after next level
+            });
             quitButton.addActionListener(e -> quitGame());
 
             // Set up button panel

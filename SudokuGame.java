@@ -9,8 +9,9 @@ public class SudokuGame {
     private int subgridSize; // Size of subgrids
 
     private JFrame frame;
-    private JTextField[][] cells;
-    private int[][] solutionGrid;
+    private JTextField[][] cells; // Stores the players' values
+    private int[][] solutionGrid; // Holds the complete solution
+    private int[][] puzzleGrid;   // Holds the generated puzzle
 
     public SudokuGame() {
         String[] levels = {"Easy (4x4)", "Medium (6x6)", "Hard (9x9)"};
@@ -143,19 +144,22 @@ public class SudokuGame {
         for (int i = 0; i < gridSize; i++) {
             for (int j = 0; j < gridSize; j++) {
                 cells[i][j].setText("");
+                cells[i][j].setEditable(true);
             }
         }
     }
 
     private void generateSudoku() {
         solutionGrid = new int[gridSize][gridSize];
+        puzzleGrid = new int[gridSize][gridSize];
         solve(solutionGrid); // Generate a complete solution
 
-        // Remove some numbers to create a puzzle
+        // Copy solution to puzzleGrid and remove numbers to create a puzzle
         for (int i = 0; i < gridSize; i++) {
             for (int j = 0; j < gridSize; j++) {
+                puzzleGrid[i][j] = solutionGrid[i][j];
                 if (Math.random() < 0.5) {
-                    solutionGrid[i][j] = 0;
+                    puzzleGrid[i][j] = 0;
                 }
             }
         }
@@ -163,8 +167,8 @@ public class SudokuGame {
         // Display the puzzle
         for (int i = 0; i < gridSize; i++) {
             for (int j = 0; j < gridSize; j++) {
-                if (solutionGrid[i][j] != 0) {
-                    cells[i][j].setText(String.valueOf(solutionGrid[i][j]));
+                if (puzzleGrid[i][j] != 0) {
+                    cells[i][j].setText(String.valueOf(puzzleGrid[i][j]));
                     cells[i][j].setEditable(false);
                 } else {
                     cells[i][j].setText("");
@@ -176,6 +180,39 @@ public class SudokuGame {
 
     private void checkSolution() {
         try {
+            // Check if the grid is completely filled
+            boolean isCompleted = true;
+            for (int i = 0; i < gridSize; i++) {
+                for (int j = 0; j < gridSize; j++) {
+                    String text = cells[i][j].getText().trim();
+                    if (text.isEmpty()) {
+                        isCompleted = false;
+                        break;
+                    }
+                }
+                if (!isCompleted) {
+                    break;
+                }
+            }
+
+            if (!isCompleted) {
+                throw new Exception("Please complete the Sudoku before checking.");
+            }
+
+            // Validate input values
+            for (int i = 0; i < gridSize; i++) {
+                for (int j = 0; j < gridSize; j++) {
+                    String text = cells[i][j].getText().trim();
+                    if (!text.isEmpty()) {
+                        int value = Integer.parseInt(text);
+                        if (value < 1 || value > gridSize) {
+                            throw new NumberFormatException("Invalid input at cell (" + (i + 1) + ", " + (j + 1) + ").");
+                        }
+                    }
+                }
+            }
+
+            // Check if the solution is correct
             for (int i = 0; i < gridSize; i++) {
                 for (int j = 0; j < gridSize; j++) {
                     String text = cells[i][j].getText().trim();
@@ -185,9 +222,6 @@ public class SudokuGame {
                             JOptionPane.showMessageDialog(frame, "Incorrect solution.", "Error", JOptionPane.ERROR_MESSAGE);
                             return;
                         }
-                    } else {
-                        JOptionPane.showMessageDialog(frame, "Please complete the Sudoku before checking.", "Error", JOptionPane.ERROR_MESSAGE);
-                        return;
                     }
                 }
             }
@@ -195,7 +229,7 @@ public class SudokuGame {
         } catch (NumberFormatException ex) {
             JOptionPane.showMessageDialog(frame, "Invalid input: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         } catch (Exception ex) {
-            JOptionPane.showMessageDialog(frame, "An unexpected error occurred: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(frame, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
 
