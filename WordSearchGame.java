@@ -13,7 +13,7 @@ public class WordSearchGame {
         private ArrayList<String> wordList;
         private char[][] wordGrid;
         private int gridSize = 10;
-        private int score = 0; // Track the score
+        private int score = 0;
 
         public WordSearchGUI() {
             frame = new JFrame("Word Search Puzzle");
@@ -26,6 +26,14 @@ public class WordSearchGame {
             wordList.add("PUZZLE");
             wordList.add("GAME");
             wordList.add("SWING");
+            wordList.add("CODE");
+            wordList.add("PROGRAM");
+            wordList.add("DEBUG");
+            wordList.add("COMPILE");
+            wordList.add("VARIABLE");
+            wordList.add("CLASS");
+            wordList.add("METHOD");
+            wordList.add("OBJECT");
 
             wordGrid = new char[gridSize][gridSize];
             fillGridWithWords();
@@ -49,9 +57,11 @@ public class WordSearchGame {
 
             // Add buttons
             JButton checkButton = new JButton("Check Word");
+            JButton solutionButton = new JButton("Solution");
             JButton resetButton = new JButton("Reset");
             JPanel buttonPanel = new JPanel();
             buttonPanel.add(checkButton);
+            buttonPanel.add(solutionButton);
             buttonPanel.add(resetButton);
             frame.add(buttonPanel, BorderLayout.SOUTH);
 
@@ -66,6 +76,13 @@ public class WordSearchGame {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     checkWord();
+                }
+            });
+
+            solutionButton.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    highlightSolution();
                 }
             });
 
@@ -152,20 +169,18 @@ public class WordSearchGame {
             boolean wordFound = false;
             ArrayList<int[]> foundCells = new ArrayList<>(); // To store the grid cells of the found word
 
-            // Check if the word exists in the grid
             for (String word : wordList) {
                 if (inputWord.equals(word)) {
                     wordFound = true;
-                    foundCells = findWordInGrid(word); // Get the positions of the word
+                    foundCells = findWordInGrid(word);
                     break;
                 }
             }
 
             if (wordFound) {
-                score++; // Increase score when the word is correct
-                // Highlight the cells of the found word
+                score++;
                 for (int[] cell : foundCells) {
-                    grid[cell[0]][cell[1]].setBackground(Color.YELLOW); // Highlight the cell
+                    grid[cell[0]][cell[1]].setBackground(Color.YELLOW);
                 }
 
                 JOptionPane.showMessageDialog(frame, "Congratulations! You found a word!", "Success", JOptionPane.INFORMATION_MESSAGE);
@@ -178,20 +193,19 @@ public class WordSearchGame {
             }
         }
 
-        // Method to find the coordinates of the word in the grid
         private ArrayList<int[]> findWordInGrid(String word) {
             ArrayList<int[]> positions = new ArrayList<>();
             for (int row = 0; row < gridSize; row++) {
                 for (int col = 0; col < gridSize; col++) {
                     if (checkWordAtPosition(row, col, word)) {
                         for (int i = 0; i < word.length(); i++) {
-                            positions.add(new int[]{row, col + i}); // Add horizontal positions
+                            positions.add(new int[]{row, col + i});
                         }
                         return positions;
                     }
                     if (checkWordAtPositionVertical(row, col, word)) {
                         for (int i = 0; i < word.length(); i++) {
-                            positions.add(new int[]{row + i, col}); // Add vertical positions
+                            positions.add(new int[]{row + i, col});
                         }
                         return positions;
                     }
@@ -224,15 +238,25 @@ public class WordSearchGame {
             return false;
         }
 
+        private void highlightSolution() {
+            for (String word : wordList) {
+                ArrayList<int[]> wordCells = findWordInGrid(word);
+                for (int[] cell : wordCells) {
+                    grid[cell[0]][cell[1]].setBackground(Color.CYAN);
+                }
+            }
+            JOptionPane.showMessageDialog(frame, "All words have been highlighted!", "Solution", JOptionPane.INFORMATION_MESSAGE);
+        }
+
         private void resetGrid() {
             wordGrid = new char[gridSize][gridSize];
             fillGridWithWords();
-            score = 0; // Reset score on grid reset
+            score = 0;
 
             for (int i = 0; i < gridSize; i++) {
                 for (int j = 0; j < gridSize; j++) {
                     grid[i][j].setText(String.valueOf(wordGrid[i][j]));
-                    grid[i][j].setBackground(Color.WHITE); // Reset the background color
+                    grid[i][j].setBackground(Color.WHITE);
                 }
             }
 
